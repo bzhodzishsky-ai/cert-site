@@ -86,24 +86,31 @@ canvas{width:100%;height:auto;border:1px solid var(--border);border-radius:12px;
   function norm(s){return s.replace(/\s+/g,' ').trim().replace(/(^|[\s\-])(\S)/g,function(m,a,b){return a+b.toUpperCase()})}
 
   // Функция подбора размера (если имя слишком длинное)
-  function fit(name, maxW, baseSize, fontFamily){
+ function fit(name, maxW, baseSize, fontFamily){
+    // Расшифровываем ключи в нормальные CSS-названия
+    var actualFont = fontFamily;
+    if (fontFamily === 'playfair') actualFont = "'Playfair Display', serif";
+    else if (fontFamily === 'caveat') actualFont = "'Caveat', cursive";
+    else if (fontFamily === 'serif') actualFont = "'Times New Roman', serif";
+    else if (fontFamily === 'sans-serif') actualFont = "Arial, sans-serif";
+
     for (var s = baseSize; s >= 20; s -= 2){
-      ctx.font = (s*S)+'px '+fontFamily;
-      if (ctx.measureText(name).width <= maxW*S) return {lines:[name], size:s};
+      ctx.font = (s*S)+'px '+actualFont;
+      if (ctx.measureText(name).width <= maxW*S) return {lines:[name], size:s, actualFont: actualFont};
     }
     var w = name.split(' '), best = null;
     for (var i = 1; i < w.length; i++){
       var a = w.slice(0,i).join(' '), b = w.slice(i).join(' ');
-      ctx.font = (Math.round(baseSize*0.7)*S)+'px '+fontFamily;
+      ctx.font = (Math.round(baseSize*0.7)*S)+'px '+actualFont;
       var m = Math.max(ctx.measureText(a).width, ctx.measureText(b).width);
       if (!best || m < best.m) best = {m:m, l:[a,b]};
     }
-    if (best && best.m <= maxW*S) return {lines: best.l, size: Math.round(baseSize*0.7)};
+    if (best && best.m <= maxW*S) return {lines: best.l, size: Math.round(baseSize*0.7), actualFont: actualFont};
     for (var t = baseSize-2; t >= 14; t -= 2){
-      ctx.font = (t*S)+'px '+fontFamily;
-      if (ctx.measureText(name).width <= maxW*S) return {lines:[name], size:t};
+      ctx.font = (t*S)+'px '+actualFont;
+      if (ctx.measureText(name).width <= maxW*S) return {lines:[name], size:t, actualFont: actualFont};
     }
-    return {lines:[name], size: 14};
+    return {lines:[name], size: 14, actualFont: actualFont};
   }
 
   function draw(){
@@ -117,7 +124,7 @@ canvas{width:100%;height:auto;border:1px solid var(--border);border-radius:12px;
     ctx.fillStyle = nameBox.color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.font = (r.size*S)+'px '+nameBox.fontFamily;
+    ctx.font = (r.size*S)+'px '+r.actualFont;
     
     if (r.lines.length === 1) {
       ctx.fillText(r.lines[0], nameBox.x*S, nameBox.y*S);
@@ -185,10 +192,17 @@ canvas{width:100%;height:auto;border:1px solid var(--border);border-radius:12px;
     .then(d => {
       if (d.nameBox) nameBox = d.nameBox;
       
-      // Принудительно просим браузер загрузить выбранный шрифт
-      if (nameBox.fontFamily && nameBox.fontFamily !== 'serif' && nameBox.fontFamily !== 'sans-serif') {
-        document.fonts.load(`600 44px ${nameBox.fontFamily}`).then(function() {
+      // Определяем, какой шрифт нужно предзагрузить
+      let fontToLoad = nameBox.fontFamily;
+      if (fontToLoad === 'playfair') fontToLoad = "'Playfair Display', serif";
+      else if (fontToLoad === 'caveat') fontToLoad = "'Caveat', cursive";
+
+      // Просим браузер загрузить его и только потом грузим шаблон
+      if (fontToLoad && fontToLoad !== 'serif' && fontToLoad !== 'sans-serif') {
+        document.fonts.load(`600 44px ${fontToLoad}`).then(function() {
           img.src = d.templateUrl;
+        }).catch(function() {
+          img.src = d.templateUrl; // Если шрифт не загрузился, все равно показываем
         });
       } else {
         img.src = d.templateUrl;
