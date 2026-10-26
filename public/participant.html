@@ -3,49 +3,91 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Сертификат участника</title>
+<title>Получение сертификата — СертФлоу</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f6f7fb;--card:#fff;--text:#1c2233;--muted:#667;--accent:#2b4a9b;--accent-text:#fff;--border:#d5d9e6}
+:root{--bg:#f4f7f6;--card:#fff;--text:#1a202c;--muted:#718096;--accent:#2b6cb0;--accent-hover:#2c5282;--border:#e2e8f0}
 @media (prefers-color-scheme:dark){
-  :root{--bg:#14161d;--card:#1e222d;--text:#eceef5;--muted:#9aa1b5;--accent:#7f9cf0;--accent-text:#101426;--border:#363c4f}
+  :root{--bg:#1a202c;--card:#2d3748;--text:#f7fafc;--muted:#a0aec0;--accent:#63b3ed;--accent-hover:#4299e1;--border:#4a5568}
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
-main{max-width:760px;margin:0 auto;padding:24px 16px 40px}
-h1{font-size:1.5rem;margin:0 0 6px}
-p.lead{color:var(--muted);margin:0 0 20px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
-label{display:block;font-weight:600;margin-bottom:6px}
-input{width:100%;font:inherit;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text)}
-input:focus{outline:2px solid var(--accent);outline-offset:1px}
-.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-button{font:inherit;font-weight:600;padding:12px 18px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-text);cursor:pointer}
-button.alt{background:transparent;color:var(--accent)}
-button:disabled{opacity:.45;cursor:not-allowed}
-.preview{margin-top:18px}
-canvas{width:100%;height:auto;border:1px solid var(--border);border-radius:8px;background:#fff;display:block}
-#msg{margin-top:12px;min-height:1.4em;color:var(--muted);font-size:.95rem}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);margin:0;line-height:1.6;
+}
+header{
+  background:var(--card);border-bottom:1px solid var(--border);padding:16px 24px;
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-container{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+.logo-icon{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:18px}
+.logo-text{font-size:1.4rem;font-weight:800;letter-spacing:-0.5px}
+
+main{max-width:700px;margin:0 auto;padding:40px 24px}
+.hero{text-align:center;margin-bottom:32px}
+.hero h1{font-size:2rem;font-weight:800;margin:0 0 12px;letter-spacing:-0.5px}
+.hero p{color:var(--muted);font-size:1.1rem;margin:0}
+
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;
+  box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);
+}
+label{display:block;font-weight:600;margin-bottom:8px;font-size:1rem}
+input{
+  width:100%;font-family:inherit;font-size:1.1rem;padding:16px;border-radius:12px;
+  border:2px solid var(--border);background:var(--bg);color:var(--text);transition:border-color 0.2s;
+}
+input:focus{outline:none;border-color:var(--accent)}
+.row{display:flex;gap:12px;margin-top:24px}
+button{
+  font-family:inherit;font-size:1rem;font-weight:600;padding:16px 24px;border-radius:12px;
+  border:none;cursor:pointer;transition:all 0.2s;flex:1;
+}
+button.primary{background:var(--accent);color:white}
+button.primary:hover:not(:disabled){background:var(--accent-hover);transform:translateY(-1px)}
+button.alt{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+button.alt:hover:not(:disabled){background:var(--accent);color:white}
+button:disabled{opacity:.5;cursor:not-allowed}
+
+.preview{margin-top:32px}
+canvas{width:100%;height:auto;border:1px solid var(--border);border-radius:12px;background:#fff;display:block;box-shadow:0 4px 6px rgba(0,0,0,0.05)}
+#msg{margin-top:16px;min-height:1.5em;color:var(--muted);font-size:.95rem;text-align:center}
 </style>
 </head>
 <body>
+
+<header>
+  <a href="/" class="logo-container">
+    <div class="logo-icon">C</div>
+    <div class="logo-text">СертФлоу</div>
+  </a>
+</header>
+
 <main>
-<h1>Сертификат участника</h1>
-<p class="lead">Введите ФИО так, как оно должно быть указано в сертификате, и скачайте готовый файл.</p>
-<div class="card">
-  <label for="fio">Фамилия Имя Отчество</label>
-  <input id="fio" type="text" autocomplete="name" placeholder="Иванова Мария Александровна" maxlength="90">
-  <div class="row">
-    <button id="pdf" disabled>Скачать PDF</button>
-    <button id="png" class="alt" disabled>Скачать картинку (PNG)</button>
+  <div class="hero">
+    <h1>Ваш сертификат готов</h1>
+    <p>Введите ФИО так, как оно должно быть указано в документе.</p>
   </div>
-  <div id="msg" role="status"></div>
-  <div class="preview"><canvas id="cv" width="2250" height="1590"></canvas></div>
-</div>
+  
+  <div class="card">
+    <label for="fio">Фамилия Имя Отчество</label>
+    <input id="fio" type="text" autocomplete="name" placeholder="Иванова Мария Александровна" maxlength="90">
+    
+    <div class="row">
+      <button id="pdf" class="primary" disabled>Скачать PDF</button>
+      <button id="png" class="alt" disabled>Скачать PNG</button>
+    </div>
+    <div id="msg" role="status"></div>
+    
+    <div class="preview"><canvas id="cv" width="2250" height="1590"></canvas></div>
+  </div>
 </main>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 (function(){
-  // Значения по умолчанию (совместимы с вашим исходным дизайном)
   var W = 1125, H = 795, S = 2, CX = 567;
   var FONT = '"Times New Roman","Liberation Serif",Times,serif';
   var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
@@ -123,7 +165,7 @@ canvas{width:100%;height:auto;border:1px solid var(--border);border-radius:8px;b
       a.click();
       document.body.removeChild(a);
       setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-      msg.textContent = 'Готово.';
+      msg.textContent = 'Файл сохранен!';
     } catch(e){
       msg.textContent = 'Не удалось сохранить файл. Попробуйте ещё раз.';
     }
