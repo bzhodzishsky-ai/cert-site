@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Сертификат участника</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#1c2233;--muted:#667;--accent:#2b4a9b;--accent-text:#fff;--border:#d5d9e6}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#14161d;--card:#1e222d;--text:#eceef5;--muted:#9aa1b5;--accent:#7f9cf0;--accent-text:#101426;--border:#363c4f}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+main{max-width:760px;margin:0 auto;padding:24px 16px 40px}
+h1{font-size:1.5rem;margin:0 0 6px}
+p.lead{color:var(--muted);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+label{display:block;font-weight:600;margin-bottom:6px}
+input{width:100%;font:inherit;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text)}
+input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button{font:inherit;font-weight:600;padding:12px 18px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-text);cursor:pointer}
+button.alt{background:transparent;color:var(--accent)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.preview{margin-top:18px}
+canvas{width:100%;height:auto;border:1px solid var(--border);border-radius:8px;background:#fff;display:block}
+#msg{margin-top:12px;min-height:1.4em;color:var(--muted);font-size:.95rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Сертификат участника</h1>
+<p class="lead">Введите ФИО так, как оно должно быть указано в сертификате, и скачайте готовый файл.</p>
+<div class="card">
+  <label for="fio">Фамилия Имя Отчество</label>
+  <input id="fio" type="text" autocomplete="name" placeholder="Иванова Мария Александровна" maxlength="90">
+  <div class="row">
+    <button id="pdf" disabled>Скачать PDF</button>
+    <button id="png" class="alt" disabled>Скачать картинку (PNG)</button>
+  </div>
+  <div id="msg" role="status"></div>
+  <div class="preview"><canvas id="cv" width="2250" height="1590"></canvas></div>
+</div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+  // Значения по умолчанию (совместимы с вашим исходным дизайном)
+  var W = 1125, H = 795, S = 2, CX = 567;
+  var FONT = '"Times New Roman","Liberation Serif",Times,serif';
+  var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  var inp = document.getElementById('fio');
+  var bp = document.getElementById('pdf'), bn = document.getElementById('png'), msg = document.getElementById('msg');
+  var img = new Image(), ready = false;
+  var certId = location.pathname.split('/').pop();
+  var nameBox = { x: 567, y: 570, maxWidth: 470, color: '#1a1a1a' };
+
+  function norm(s){return s.replace(/\s+/g,' ').trim().replace(/(^|[\s\-])(\S)/g,function(m,a,b){return a+b.toUpperCase()})}
+
+  function fit(name, maxW){
+    for (var s = 44; s >= 28; s -= 2){
+      ctx.font = (s*S)+'px '+FONT;
+      if (ctx.measureText(name).width <= maxW*S) return {lines:[name], size:s};
+    }
+    var w = name.split(' '), best = null;
+    for (var i = 1; i < w.length; i++){
+      var a = w.slice(0,i).join(' '), b = w.slice(i).join(' ');
+      ctx.font = (30*S)+'px '+FONT;
+      var m = Math.max(ctx.measureText(a).width, ctx.measureText(b).width);
+      if (!best || m < best.m) best = {m:m, l:[a,b]};
+    }
+    if (best && best.m <= maxW*S) return {lines: best.l, size: 30};
+    for (var t = 28; t >= 14; t -= 1){
+      ctx.font = (t*S)+'px '+FONT;
+      if (ctx.measureText(name).width <= maxW*S) return {lines:[name], size:t};
+    }
+    return {lines:[name], size: 14};
+  }
+
+  function draw(){
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, W*S, H*S);
+    if (ready) ctx.drawImage(img, 0, 0, W*S, H*S);
+    var name = norm(inp.value);
+    if (!name) return;
+    var r = fit(name, nameBox.maxWidth);
+    ctx.fillStyle = nameBox.color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = (r.size*S)+'px '+FONT;
+    if (r.lines.length === 1) ctx.fillText(r.lines[0], nameBox.x*S, nameBox.y*S);
+    else {
+      ctx.fillText(r.lines[0], nameBox.x*S, (nameBox.y-34)*S);
+      ctx.fillText(r.lines[1], nameBox.x*S, nameBox.y*S);
+    }
+  }
+
+  function fname(ext){
+    var n = norm(inp.value).replace(/[\\\/:*?"<>|]/g,'').slice(0,60);
+    return 'Сертификат - ' + n + '.' + ext;
+  }
+
+  function upd(){
+    var ok = norm(inp.value).length > 1 && ready;
+    bp.disabled = bn.disabled = !ok;
+    draw();
+  }
+
+  function save(ext, data){
+    msg.textContent = '';
+    try {
+      var blob;
+      if (data instanceof Blob) blob = data;
+      else {
+        var mime = ext === 'pdf' ? 'application/pdf' : 'image/png';
+        blob = new Blob([data], { type: mime });
+      }
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = fname(ext);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+      msg.textContent = 'Готово.';
+    } catch(e){
+      msg.textContent = 'Не удалось сохранить файл. Попробуйте ещё раз.';
+    }
+  }
+
+  bp.onclick = function(){
+    if (!window.jspdf){ msg.textContent = 'Не загрузилась библиотека PDF. Обновите страницу.'; return; }
+    var pdf = new window.jspdf.jsPDF({ orientation:'landscape', unit:'px', format:[W,H], compress:true });
+    pdf.addImage(cv.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, W, H);
+    save('pdf', pdf.output('arraybuffer'));
+  };
+  bn.onclick = function(){
+    cv.toBlob(function(b){ save('png', b); }, 'image/png');
+  };
+  inp.addEventListener('input', upd);
+
+  img.onload = function(){ ready = true; upd(); };
+
+  fetch('/api/cert/' + certId)
+    .then(r => r.json())
+    .then(d => {
+      if (d.nameBox) nameBox = d.nameBox;
+      img.src = d.templateUrl;
+    })
+    .catch(() => { msg.textContent = 'Не удалось загрузить шаблон сертификата.'; });
+})();
+</script>
+</body>
+</html>
