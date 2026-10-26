@@ -50,17 +50,19 @@ app.get('/', (req, res) => {
 app.post('/api/upload', upload.single('template'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Файл не получен' });
   
-  // Получаем координаты от организатора
   const x = parseFloat(req.body.x) || 567;
   const y = parseFloat(req.body.y) || 570;
   const maxWidth = parseFloat(req.body.maxWidth) || 470;
+  const color = req.body.color || '#1a1a1a';
+  const fontFamily = req.body.fontFamily || 'serif';
+  const fontSize = parseFloat(req.body.fontSize) || 44;
 
   const id = nanoid(8);
   const db = loadDB();
   db[id] = {
     templateFile: req.file.filename,
     createdAt: new Date().toISOString(),
-    nameBox: { x: x, y: y, maxWidth: maxWidth, color: '#1a1a1a' }
+    nameBox: { x, y, maxWidth, color, fontFamily, fontSize }
   };
   saveDB(db);
   res.json({ id, url: `/c/${id}` });
