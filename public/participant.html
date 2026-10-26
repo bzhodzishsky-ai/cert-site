@@ -6,21 +6,15 @@
 <title>Получение сертификата — СертФлоу</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:ital,wght@1,600&family=Caveat:wght@600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f4f7f6;--card:#fff;--text:#1a202c;--muted:#718096;--accent:#2b6cb0;--accent-hover:#2c5282;--border:#e2e8f0}
 @media (prefers-color-scheme:dark){
   :root{--bg:#1a202c;--card:#2d3748;--text:#f7fafc;--muted:#a0aec0;--accent:#63b3ed;--accent-hover:#4299e1;--border:#4a5568}
 }
 *{box-sizing:border-box}
-body{
-  font-family:'Inter',system-ui,-apple-system,sans-serif;
-  background:var(--bg);color:var(--text);margin:0;line-height:1.6;
-}
-header{
-  background:var(--card);border-bottom:1px solid var(--border);padding:16px 24px;
-  display:flex;align-items:center;justify-content:center;
-}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);margin:0;line-height:1.6}
+header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:center}
 .logo-container{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
 .logo-icon{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:18px}
 .logo-text{font-size:1.4rem;font-weight:800;letter-spacing:-0.5px}
@@ -30,21 +24,12 @@ main{max-width:700px;margin:0 auto;padding:40px 24px}
 .hero h1{font-size:2rem;font-weight:800;margin:0 0 12px;letter-spacing:-0.5px}
 .hero p{color:var(--muted);font-size:1.1rem;margin:0}
 
-.card{
-  background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;
-  box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);
-}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.05)}
 label{display:block;font-weight:600;margin-bottom:8px;font-size:1rem}
-input{
-  width:100%;font-family:inherit;font-size:1.1rem;padding:16px;border-radius:12px;
-  border:2px solid var(--border);background:var(--bg);color:var(--text);transition:border-color 0.2s;
-}
+input{width:100%;font-family:inherit;font-size:1.1rem;padding:16px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text);transition:border-color 0.2s}
 input:focus{outline:none;border-color:var(--accent)}
 .row{display:flex;gap:12px;margin-top:24px}
-button{
-  font-family:inherit;font-size:1rem;font-weight:600;padding:16px 24px;border-radius:12px;
-  border:none;cursor:pointer;transition:all 0.2s;flex:1;
-}
+button{font-family:inherit;font-size:1rem;font-weight:600;padding:16px 24px;border-radius:12px;border:none;cursor:pointer;transition:all 0.2s;flex:1}
 button.primary{background:var(--accent);color:white}
 button.primary:hover:not(:disabled){background:var(--accent-hover);transform:translateY(-1px)}
 button.alt{background:transparent;color:var(--accent);border:2px solid var(--accent)}
@@ -88,32 +73,34 @@ canvas{width:100%;height:auto;border:1px solid var(--border);border-radius:12px;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 (function(){
-  var W = 1125, H = 795, S = 2, CX = 567;
-  var FONT = '"Times New Roman","Liberation Serif",Times,serif';
+  var W = 1125, H = 795, S = 2;
   var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
   var inp = document.getElementById('fio');
   var bp = document.getElementById('pdf'), bn = document.getElementById('png'), msg = document.getElementById('msg');
   var img = new Image(), ready = false;
   var certId = location.pathname.split('/').pop();
-  var nameBox = { x: 567, y: 570, maxWidth: 470, color: '#1a1a1a' };
+  
+  // По умолчанию
+  var nameBox = { x: 567, y: 570, maxWidth: 470, color: '#1a1a1a', fontFamily: 'serif', fontSize: 44 };
 
   function norm(s){return s.replace(/\s+/g,' ').trim().replace(/(^|[\s\-])(\S)/g,function(m,a,b){return a+b.toUpperCase()})}
 
-  function fit(name, maxW){
-    for (var s = 44; s >= 28; s -= 2){
-      ctx.font = (s*S)+'px '+FONT;
+  // Функция подбора размера (если имя слишком длинное)
+  function fit(name, maxW, baseSize, fontFamily){
+    for (var s = baseSize; s >= 20; s -= 2){
+      ctx.font = (s*S)+'px '+fontFamily;
       if (ctx.measureText(name).width <= maxW*S) return {lines:[name], size:s};
     }
     var w = name.split(' '), best = null;
     for (var i = 1; i < w.length; i++){
       var a = w.slice(0,i).join(' '), b = w.slice(i).join(' ');
-      ctx.font = (30*S)+'px '+FONT;
+      ctx.font = (Math.round(baseSize*0.7)*S)+'px '+fontFamily;
       var m = Math.max(ctx.measureText(a).width, ctx.measureText(b).width);
       if (!best || m < best.m) best = {m:m, l:[a,b]};
     }
-    if (best && best.m <= maxW*S) return {lines: best.l, size: 30};
-    for (var t = 28; t >= 14; t -= 1){
-      ctx.font = (t*S)+'px '+FONT;
+    if (best && best.m <= maxW*S) return {lines: best.l, size: Math.round(baseSize*0.7)};
+    for (var t = baseSize-2; t >= 14; t -= 2){
+      ctx.font = (t*S)+'px '+fontFamily;
       if (ctx.measureText(name).width <= maxW*S) return {lines:[name], size:t};
     }
     return {lines:[name], size: 14};
@@ -125,14 +112,17 @@ canvas{width:100%;height:auto;border:1px solid var(--border);border-radius:12px;
     if (ready) ctx.drawImage(img, 0, 0, W*S, H*S);
     var name = norm(inp.value);
     if (!name) return;
-    var r = fit(name, nameBox.maxWidth);
+    
+    var r = fit(name, nameBox.maxWidth, nameBox.fontSize, nameBox.fontFamily);
     ctx.fillStyle = nameBox.color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.font = (r.size*S)+'px '+FONT;
-    if (r.lines.length === 1) ctx.fillText(r.lines[0], nameBox.x*S, nameBox.y*S);
-    else {
-      ctx.fillText(r.lines[0], nameBox.x*S, (nameBox.y-34)*S);
+    ctx.font = (r.size*S)+'px '+nameBox.fontFamily;
+    
+    if (r.lines.length === 1) {
+      ctx.fillText(r.lines[0], nameBox.x*S, nameBox.y*S);
+    } else {
+      ctx.fillText(r.lines[0], nameBox.x*S, (nameBox.y - r.size*0.8)*S);
       ctx.fillText(r.lines[1], nameBox.x*S, nameBox.y*S);
     }
   }
