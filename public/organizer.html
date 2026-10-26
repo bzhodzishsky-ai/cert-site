@@ -6,274 +6,69 @@
 <title>СертФлоу — Генератор сертификатов</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:ital,wght@1,600&family=Caveat:wght@600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f4f7f6;
-    --card: #ffffff;
-    --text: #1a202c;
-    --muted: #718096;
-    --accent: #2b6cb0;
-    --accent-hover: #2c5282;
-    --border: #e2e8f0;
-    --success-bg: #c6f6d5;
-    --success-text: #22543d;
+    --bg: #f4f7f6; --card: #ffffff; --text: #1a202c; --muted: #718096;
+    --accent: #2b6cb0; --accent-hover: #2c5282; --border: #e2e8f0;
+    --success-bg: #c6f6d5; --success-text: #22543d;
   }
   * { box-sizing: border-box; }
-  body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: var(--bg);
-    color: var(--text);
-    margin: 0;
-    padding: 0;
-    line-height: 1.6;
-  }
+  body { font-family: 'Inter', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; }
   
-  /* Шапка */
-  header {
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .logo-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    color: var(--text);
-  }
-  .logo-icon {
-    width: 32px;
-    height: 32px;
-    background: var(--accent);
-    border-radius: 8px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 800;
-    font-size: 18px;
-    box-shadow: 0 4px 6px rgba(43, 108, 176, 0.2);
-  }
-  .logo-text {
-    font-size: 1.4rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-  }
+  header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: center; }
+  .logo-container { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
+  .logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 18px; box-shadow: 0 4px 6px rgba(43, 108, 176, 0.2); }
+  .logo-text { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
 
-  /* Основной контент */
-  main {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 40px 24px;
-  }
+  main { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  .hero { text-align: center; margin-bottom: 40px; }
+  .hero h1 { font-size: 2.2rem; font-weight: 800; margin: 0 0 16px; letter-spacing: -1px; line-height: 1.2; }
+  .hero p { font-size: 1.1rem; color: var(--muted); max-width: 600px; margin: 0 auto; }
+
+  .beta-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--success-bg); color: var(--success-text); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; margin-bottom: 24px; }
+  .beta-badge::before { content: ''; display: block; width: 8px; height: 8px; background: #38a169; border-radius: 50%; }
+
+  .step-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+  .step-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .step-number { width: 40px; height: 40px; background: #ebf4ff; color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; flex-shrink: 0; }
+  .step-title { font-size: 1.2rem; font-weight: 600; margin: 0; }
+  .step-desc { color: var(--muted); font-size: 0.95rem; margin-bottom: 20px; }
+
+  input[type=file] { width: 100%; padding: 20px; border: 2px dashed var(--border); border-radius: 12px; background: #fafbfc; cursor: pointer; font-family: inherit; color: var(--muted); transition: all 0.2s; }
+  input[type=file]:hover { border-color: var(--accent); background: #f0f7ff; }
+  input[type=file]::file-selector-button { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-family: inherit; margin-right: 16px; transition: background 0.2s; }
+  input[type=file]::file-selector-button:hover { background: var(--accent-hover); }
+
+  button { font-family: inherit; font-size: 1rem; font-weight: 600; padding: 14px 24px; border-radius: 10px; border: none; background: var(--accent); color: white; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; width: 100%; }
+  button:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(43, 108, 176, 0.2); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .editor-layout { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 16px; }
+  .editor-preview { flex: 1 1 500px; max-width: 100%; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: crosshair; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+  .editor-preview canvas { display: block; max-width: 100%; height: auto; }
   
-  /* Герой-секция */
-  .hero {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-  .hero h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin: 0 0 16px;
-    letter-spacing: -1px;
-    line-height: 1.2;
-  }
-  .hero p {
-    font-size: 1.1rem;
-    color: var(--muted);
-    max-width: 600px;
-    margin: 0 auto;
-  }
+  .editor-controls { flex: 0 0 280px; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
+  .control-group { margin-bottom: 20px; }
+  .control-group:last-child { margin-bottom: 0; }
+  .control-label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  
+  select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-family: inherit; font-size: 0.95rem; background: white; }
+  
+  .color-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+  .color-option { width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform 0.1s; }
+  .color-option:hover { transform: scale(1.1); }
+  .color-option.active { border-color: var(--accent); box-shadow: 0 0 0 2px white inset; }
 
-  /* Плашка тестирования */
-  .beta-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--success-bg);
-    color: var(--success-text);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 24px;
-  }
-  .beta-badge::before {
-    content: '';
-    display: block;
-    width: 8px;
-    height: 8px;
-    background: #38a169;
-    border-radius: 50%;
-  }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
 
-  /* Карточки шагов */
-  .step-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 32px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    transition: transform 0.2s;
-  }
-  .step-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-  .step-number {
-    width: 40px;
-    height: 40px;
-    background: #ebf4ff;
-    color: var(--accent);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-  }
-  .step-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 0;
-  }
-  .step-desc {
-    color: var(--muted);
-    font-size: 0.95rem;
-    margin-bottom: 20px;
-  }
+  .hint { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--accent); background: #ebf4ff; padding: 12px; border-radius: 8px; margin-bottom: 16px; }
 
-  /* Форма */
-  input[type=file] {
-    width: 100%;
-    padding: 20px;
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    background: #fafbfc;
-    cursor: pointer;
-    font-family: inherit;
-    color: var(--muted);
-    transition: all 0.2s;
-  }
-  input[type=file]:hover {
-    border-color: var(--accent);
-    background: #f0f7ff;
-  }
-  input[type=file]::file-selector-button {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-family: inherit;
-    margin-right: 16px;
-    transition: background 0.2s;
-  }
-  input[type=file]::file-selector-button:hover {
-    background: var(--accent-hover);
-  }
-
-  button {
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 14px 24px;
-    border-radius: 10px;
-    border: none;
-    background: var(--accent);
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-  }
-  button:hover:not(:disabled) {
-    background: var(--accent-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(43, 108, 176, 0.2);
-  }
-  button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Редактор */
-  .editor-wrap {
-    position: relative;
-    display: inline-block;
-    margin-top: 16px;
-    max-width: 100%;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: crosshair;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-  }
-  .editor-wrap canvas {
-    display: block;
-    max-width: 100%;
-    height: auto;
-  }
-  .hint {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
-    color: var(--accent);
-    background: #ebf4ff;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-  }
-
-  /* Результат */
   #msg { margin-top: 12px; color: var(--muted); font-size: 0.95rem; text-align: center; }
-  .link-box {
-    margin-top: 24px;
-    padding: 24px;
-    border: 2px solid var(--accent);
-    border-radius: 12px;
-    background: #ebf4ff;
-    word-break: break-all;
-    display: none;
-    text-align: center;
-  }
+  .link-box { margin-top: 24px; padding: 24px; border: 2px solid var(--accent); border-radius: 12px; background: #ebf4ff; word-break: break-all; display: none; text-align: center; }
   .link-box p { margin: 0 0 12px; font-weight: 600; color: var(--accent); }
-  .link-box a {
-    color: var(--accent-hover);
-    font-weight: 800;
-    font-size: 1.1rem;
-    text-decoration: none;
-    display: block;
-    padding: 12px;
-    background: white;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-  }
-
-  /* Футер */
-  footer {
-    text-align: center;
-    padding: 40px 24px;
-    color: var(--muted);
-    font-size: 0.9rem;
-    border-top: 1px solid var(--border);
-    margin-top: 60px;
-  }
+  .link-box a { color: var(--accent-hover); font-weight: 800; font-size: 1.1rem; text-decoration: none; display: block; padding: 12px; background: white; border-radius: 8px; border: 1px solid var(--border); }
+  footer { text-align: center; padding: 40px 24px; color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--border); margin-top: 60px; }
 </style>
 </head>
 <body>
@@ -289,37 +84,69 @@
   <div class="hero">
     <div class="beta-badge">Проект в стадии тестирования</div>
     <h1>Создавайте сертификаты для участников за пару минут</h1>
-    <p>Загрузите свой шаблон, укажите место для имени и получите ссылку, которую можно отправить всем участникам мероприятия. Пока сервис полностью <b>бесплатен</b>.</p>
+    <p>Загрузите свой шаблон, настройте шрифт и получите ссылку, которую можно отправить всем участникам. Пока сервис полностью <b>бесплатен</b>.</p>
   </div>
 
-  <!-- Шаг 1 -->
   <div class="step-card" id="step1">
     <div class="step-header">
       <div class="step-number">1</div>
       <h2 class="step-title">Загрузите шаблон</h2>
     </div>
-    <p class="step-desc">Выберите файл сертификата в формате JPG или PNG. Это может быть готовый дизайн из Canva или Photoshop.</p>
+    <p class="step-desc">Выберите файл сертификата в формате JPG или PNG.</p>
     <input id="file" type="file" accept="image/jpeg,image/png">
   </div>
 
-  <!-- Шаг 2 (скрыт изначально) -->
   <div class="step-card" id="step2" style="display:none;">
     <div class="step-header">
       <div class="step-number">2</div>
-      <h2 class="step-title">Укажите место для имени</h2>
+      <h2 class="step-title">Настройте текст и укажите место</h2>
     </div>
+    
     <div class="hint">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-      Кликните по картинке в том месте, где должно быть ФИО участника.
+      Кликните по картинке в том месте, где должно быть ФИО.
     </div>
-    <div class="editor-wrap" id="editorWrap">
-      <canvas id="canvasPreview" width="1125" height="795"></canvas>
+
+    <div class="editor-layout">
+      <!-- Превью -->
+      <div class="editor-preview" id="editorWrap">
+        <canvas id="canvasPreview" width="1125" height="795"></canvas>
+      </div>
+
+      <!-- Настройки -->
+      <div class="editor-controls">
+        <div class="control-group">
+          <label class="control-label">Шрифт</label>
+          <select id="fontSelect">
+            <option value="serif">С засечками (Times New Roman)</option>
+            <option value="sans-serif">Без засечек (Arial)</option>
+            <option value="'Playfair Display', serif">Элегантный (Playfair Display)</option>
+            <option value="'Caveat', cursive">Рукописный (Caveat)</option>
+          </select>
+        </div>
+        
+        <div class="control-group">
+          <label class="control-label">Цвет текста</label>
+          <div class="color-picker" id="colorPicker">
+            <div class="color-option active" style="background:#1a1a1a" data-color="#1a1a1a" title="Черный"></div>
+            <div class="color-option" style="background:#2b4a9b" data-color="#2b4a9b" title="Синий"></div>
+            <div class="color-option" style="background:#c53030" data-color="#c53030" title="Красный"></div>
+            <div class="color-option" style="background:#276749" data-color="#276749" title="Зеленый"></div>
+            <div class="color-option" style="background:#b7791f" data-color="#b7791f" title="Золотой"></div>
+            <div class="color-option" style="background:#ffffff" data-color="#ffffff" title="Белый"></div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Базовый размер: <span id="sizeVal">44</span> px</label>
+          <input type="range" id="sizeRange" min="20" max="80" value="44">
+        </div>
+      </div>
     </div>
     
     <button id="go" style="margin-top:24px;">Сгенерировать ссылку для участников</button>
     <div id="msg"></div>
     
-    <!-- Блок с результатом -->
     <div class="link-box" id="linkBox">
       <p>Готово! Ссылка для участников:</p>
       <a id="link" href="#" target="_blank"></a>
@@ -342,11 +169,41 @@ const msg = document.getElementById('msg');
 const linkBox = document.getElementById('linkBox');
 const link = document.getElementById('link');
 
+const fontSelect = document.getElementById('fontSelect');
+const sizeRange = document.getElementById('sizeRange');
+const sizeVal = document.getElementById('sizeVal');
+const colorPicker = document.getElementById('colorPicker');
+
 let selectedFile = null;
 let img = new Image();
 let nameX = 567;
 let nameY = 570;
 let nameMaxWidth = 470;
+
+let currentFont = 'serif';
+let currentColor = '#1a1a1a';
+let currentSize = 44;
+
+// Настройки шрифта
+fontSelect.addEventListener('change', (e) => {
+  currentFont = e.target.value;
+  drawPreview();
+});
+
+sizeRange.addEventListener('input', (e) => {
+  currentSize = parseInt(e.target.value);
+  sizeVal.textContent = currentSize;
+  drawPreview();
+});
+
+colorPicker.addEventListener('click', (e) => {
+  const option = e.target.closest('.color-option');
+  if (!option) return;
+  document.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+  option.classList.add('active');
+  currentColor = option.dataset.color;
+  drawPreview();
+});
 
 fileInput.addEventListener('change', (e) => {
   const f = e.target.files[0];
@@ -365,16 +222,23 @@ function drawPreview() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-  // Рисуем маркер
+  // Рисуем маркер места
   ctx.beginPath();
-  ctx.arc(nameX, nameY, 8, 0, Math.PI * 2);
+  ctx.arc(nameX, nameY, 6, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(43, 108, 176, 0.8)';
   ctx.fill();
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Линии ширины
+  // Рисуем демо-текст
+  ctx.font = currentSize + 'px ' + currentFont;
+  ctx.fillStyle = currentColor;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText('Иванова Мария', nameX, nameY);
+
+  // Линия ширины
   ctx.beginPath();
   ctx.moveTo(nameX - nameMaxWidth/2, nameY + 15);
   ctx.lineTo(nameX + nameMaxWidth/2, nameY + 15);
@@ -384,17 +248,12 @@ function drawPreview() {
   ctx.setLineDash([]);
 }
 
+// Перетаскивание
 function handleMove(e) {
   e.preventDefault();
   const rect = canvas.getBoundingClientRect();
-  let clientX, clientY;
-  if (e.touches) {
-    clientX = e.touches[0].clientX;
-    clientY = e.touches[0].clientY;
-  } else {
-    clientX = e.clientX;
-    clientY = e.clientY;
-  }
+  let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  let clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
@@ -429,6 +288,9 @@ goBtn.addEventListener('click', async () => {
     fd.append('x', nameX);
     fd.append('y', nameY);
     fd.append('maxWidth', nameMaxWidth);
+    fd.append('color', currentColor);
+    fd.append('fontFamily', currentFont);
+    fd.append('fontSize', currentSize);
 
     const r = await fetch('/api/upload', { method: 'POST', body: fd });
     if (!r.ok) throw new Error((await r.json()).error || 'Ошибка загрузки');
