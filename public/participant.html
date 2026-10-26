@@ -172,13 +172,27 @@ canvas{width:100%;height:auto;border:1px solid var(--border);border-radius:12px;
   };
   inp.addEventListener('input', upd);
 
-  img.onload = function(){ ready = true; upd(); };
+ img.onload = function(){ 
+    // Ждем загрузки шрифтов перед тем, как включить кнопки
+    document.fonts.ready.then(function() {
+      ready = true; 
+      upd(); 
+    });
+  };
 
   fetch('/api/cert/' + certId)
     .then(r => r.json())
     .then(d => {
       if (d.nameBox) nameBox = d.nameBox;
-      img.src = d.templateUrl;
+      
+      // Принудительно просим браузер загрузить выбранный шрифт
+      if (nameBox.fontFamily && nameBox.fontFamily !== 'serif' && nameBox.fontFamily !== 'sans-serif') {
+        document.fonts.load(`600 44px ${nameBox.fontFamily}`).then(function() {
+          img.src = d.templateUrl;
+        });
+      } else {
+        img.src = d.templateUrl;
+      }
     })
     .catch(() => { msg.textContent = 'Не удалось загрузить шаблон сертификата.'; });
 })();
