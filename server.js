@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 const STORAGE_DIR = path.join(__dirname, 'storage');
 if (!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR);
 
-// Храним метаданные в простом JSON-файле (для MVP)
+// Храним метаданные в простом JSON-файле
 const DB_FILE = path.join(STORAGE_DIR, 'db.json');
 function loadDB() {
   if (!fs.existsSync(DB_FILE)) return {};
@@ -22,7 +22,6 @@ function saveDB(db) {
   fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
 }
 
-// Загрузка файлов
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => cb(null, STORAGE_DIR),
@@ -38,10 +37,16 @@ const upload = multer({
   }
 });
 
+// 1. Отдаем статику из папки public
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/storage', express.static(STORAGE_DIR));
 
-// Загрузка шаблона организатором
+// 2. Главная страница (/) теперь открывает organizer.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'organizer.html'));
+});
+
+// 3. Загрузка шаблона
 app.post('/api/upload', upload.single('template'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Файл не получен' });
   const id = nanoid(8);
@@ -49,14 +54,13 @@ app.post('/api/upload', upload.single('template'), (req, res) => {
   db[id] = {
     templateFile: req.file.filename,
     createdAt: new Date().toISOString(),
-    // координаты и стиль имени можно будет настраивать позже
     nameBox: { x: 567, y: 570, maxWidth: 470, color: '#1a1a1a' }
   };
   saveDB(db);
   res.json({ id, url: `/c/${id}` });
 });
 
-// Получить данные шаблона по id
+// 4. Получить данные шаблона
 app.get('/api/cert/:id', (req, res) => {
   const db = loadDB();
   const item = db[req.params.id];
@@ -68,7 +72,7 @@ app.get('/api/cert/:id', (req, res) => {
   });
 });
 
-// Страница участника
+// 5. Страница участника
 app.get('/c/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'participant.html'));
 });
